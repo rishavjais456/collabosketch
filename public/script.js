@@ -1,6 +1,7 @@
 const socket = io();
 const roomId = window.location.pathname.split("/").pop();
 socket.emit("join-room", roomId);
+
 const canvas = document.getElementById("board");
 const ctx = canvas.getContext("2d");
 
@@ -114,7 +115,6 @@ socket.on("chat message", ({ user, message }) => {
 });
 
 // WebRTC
-
 let localStream;
 let peerConnection;
 const config = {

@@ -3,7 +3,7 @@ const app = express();
 const http = require("http").createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(http);
-const { v4: uuidv4 } = require("uuid"); // For generating unique room IDs
+const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 
 const PORT = process.env.PORT || 3000;
@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static("public"));
 
 app.get("/", (req, res) => {
-  const roomId = uuidv4().slice(0, 6); // generate short random ID
+  const roomId = uuidv4().slice(0, 6);
   res.redirect(`/room/${roomId}`);
 });
 
@@ -26,36 +26,14 @@ io.on("connection", (socket) => {
     socket.join(roomId);
     console.log(`Socket ${socket.id} joined room ${roomId}`);
 
-    // Drawing
-    socket.on("draw", (data) => {
-      socket.to(roomId).emit("draw", data);
-    });
+    socket.on("draw", (data) => socket.to(roomId).emit("draw", data));
+    socket.on("erase", (data) => socket.to(roomId).emit("erase", data));
+    socket.on("clear", () => io.to(roomId).emit("clear"));
+    socket.on("chat message", (msg) => io.to(roomId).emit("chat message", msg));
 
-    socket.on("erase", (data) => {
-      socket.to(roomId).emit("erase", data);
-    });
-
-    socket.on("clear", () => {
-      io.to(roomId).emit("clear");
-    });
-
-    // Chat
-    socket.on("chat message", (msg) => {
-      io.to(roomId).emit("chat message", msg);
-    });
-
-    // Video Call Signaling
-    socket.on("offer", (data) => {
-      socket.to(roomId).emit("offer", data);
-    });
-
-    socket.on("answer", (data) => {
-      socket.to(roomId).emit("answer", data);
-    });
-
-    socket.on("ice-candidate", (data) => {
-      socket.to(roomId).emit("ice-candidate", data);
-    });
+    socket.on("offer", (data) => socket.to(roomId).emit("offer", data));
+    socket.on("answer", (data) => socket.to(roomId).emit("answer", data));
+    socket.on("ice-candidate", (data) => socket.to(roomId).emit("ice-candidate", data));
   });
 });
 
