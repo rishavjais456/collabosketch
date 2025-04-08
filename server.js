@@ -9,6 +9,10 @@ const path = require("path");
 const PORT = process.env.PORT || 3000;
 
 app.use(express.static("public"));
+app.use((req, res, next) => {
+  console.log("Request received:", req.method, req.url);
+  next();
+});
 
 app.get("/", (req, res) => {
   const roomId = uuidv4().slice(0, 6);
@@ -16,7 +20,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/room/:room", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(__dirname, "public", "main.html"));
 });
 
 io.on("connection", (socket) => {
